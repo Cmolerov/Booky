@@ -185,7 +185,7 @@ export default function App() {
         points={points} 
       />
 
-      <main className="max-w-4xl mx-auto p-4 md:p-6 pb-24">
+      <main className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6 pb-28 sm:pb-24">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <Dashboard key={`dashboard-${currentReader}`} books={books} standaloneWords={standaloneWords} points={points} onNavigate={setActiveTab} />

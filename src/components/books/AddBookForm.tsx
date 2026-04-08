@@ -67,11 +67,11 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white rounded-3xl p-6 shadow-sm border-2 border-slate-100 mb-8"
+      className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-slate-100 mb-8"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-black text-sky-600">Log a Book 📖</h2>
-        <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 font-bold bg-slate-100 px-3 py-1 rounded-full">Cancel</button>
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-black text-sky-600">Log a Book 📖</h2>
+        <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 font-bold bg-slate-100 px-3 py-1 rounded-full text-sm sm:text-base">Cancel</button>
       </div>
 
       {error && (

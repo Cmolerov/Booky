@@ -64,7 +64,7 @@ export const ParentPinModal: React.FC<ParentPinModalProps> = ({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`bg-white rounded-3xl p-6 max-w-sm w-full shadow-xl border-4 ${borderColor}`}
+            className={`bg-white rounded-3xl p-5 sm:p-6 max-w-sm w-full shadow-xl border-4 ${borderColor} max-h-[90vh] overflow-y-auto`}
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className={`text-xl font-black ${textColor} flex items-center gap-2`}>
