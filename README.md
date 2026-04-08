@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Booky 📚
 
-# Run and deploy your AI Studio app
+Booky is a fun, interactive reading tracker and vocabulary builder designed to encourage kids to read more, learn new words, and achieve their reading goals! 
 
-This contains everything you need to run your app locally.
+## 🌟 Key Features
 
-View your app in AI Studio: https://ai.studio/apps/6d2937f2-4930-469f-97c6-8640729f37be
+### 📖 Reading Library
+* **Log Books:** Keep track of every book read, including the title, author, and a short summary.
+* **Earn Points:** Every book logged earns the reader **1 point** towards their goals.
 
-## Run Locally
+### 🎯 Goal Tracking (Parental Controls)
+* **Set Rewards:** Parents can set custom goals (e.g., "Ice Cream Trip", "New Toy") with a specific point cost.
+* **Cash Out:** Once a reader earns enough points, they can cash out their goal, triggering a fun confetti celebration!
+* *Note: Adding, cashing out, and deleting goals is protected by a parent password.*
 
-**Prerequisites:**  Node.js
+### 🧠 Vocabulary Builder
+* **Word Bank:** Readers can add new words they discover while reading, along with their definitions.
+* **Standalone Words:** Add words independently or link them directly to specific books.
 
+### 🔖 Wishlist
+* **Future Reads:** Keep a running list of books the reader wants to get in the future.
+* **Mark as Gotten:** Once a book is acquired, simply check it off the list! The item will be visually marked as completed.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 👥 Multi-User Support
+* **Manage Profiles:** Create separate profiles for different readers (e.g., siblings) so everyone can track their own books, points, and goals.
+* *Note: User management (adding/removing users) is hidden behind a subtle settings gear icon and is protected by a parent password.*
+
+## 🔒 Parental Controls
+Certain features in Booky are protected to ensure kids don't accidentally delete users or cash out goals without permission. 
+* **Default Password:** `piggy`
+
+## 🛠️ Tech Stack
+* **Frontend:** React, TypeScript, Vite
+* **Styling:** Tailwind CSS
+* **Animations:** Framer Motion, Canvas Confetti
+* **Icons:** Lucide React
+* **Storage:** LocalStorage (Data is saved locally in the browser)
+
+## 🚀 Getting Started
+1. Open the app and click the subtle gear icon in the top right corner to set up your readers (Password: `piggy`).
+2. Select a reader from the dropdown menu in the header.
+3. Start logging books, adding words, and setting goals!
