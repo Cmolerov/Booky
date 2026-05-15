@@ -11,11 +11,17 @@ import { WordList } from './components/words/WordList';
 import { WishList } from './components/wishlist/WishList';
 import { GoalList } from './components/goals/GoalList';
 import { triggerPointsConfetti, triggerLevelUpConfetti } from './components/shared/ConfettiCelebration';
+import { ParentPinModal } from './components/shared/ParentPinModal';
+import { ParentSettingsModal } from './components/shared/ParentSettingsModal';
+import { useSettings } from './hooks/useSettings';
 
 export default function App() {
   const [allData, setAllData] = useLocalStorage();
+  const [settings, setSettings] = useSettings();
   const [currentReader, setCurrentReader] = useState<string>('Manny');
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [showSettingsPinModal, setShowSettingsPinModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const currentData = allData[currentReader] || { books: [], standaloneWords: [], wishlist: [], goals: [], points: 0 };
   const books = currentData.books;
@@ -27,8 +33,21 @@ export default function App() {
   const allWords = [...standaloneWords, ...books.flatMap(b => b.words)];
 
   const handleAddBook = (book: Book) => {
-    let earned = 1; // Base points for a book
-    
+    setAllData(prev => ({
+      ...prev,
+      [currentReader]: {
+        ...prev[currentReader],
+        books: [{...book, isApproved: false}, ...prev[currentReader].books]
+      }
+    }));
+    setActiveTab('dashboard');
+  };
+
+  const handleApproveBook = (id: string) => {
+    const bookToApprove = books.find(b => b.id === id);
+    if (!bookToApprove || bookToApprove.isApproved !== false) return;
+
+    let earned = settings.bookPoints;
     const oldLevel = Math.floor(points / 50) + 1;
     const newLevel = Math.floor((points + earned) / 50) + 1;
     
@@ -37,20 +56,19 @@ export default function App() {
     } else {
       triggerPointsConfetti();
     }
-    
+
     setAllData(prev => ({
       ...prev,
       [currentReader]: {
         ...prev[currentReader],
-        books: [book, ...prev[currentReader].books],
-        points: prev[currentReader].points + earned
+        points: prev[currentReader].points + earned,
+        books: prev[currentReader].books.map(b => b.id === id ? { ...b, isApproved: true } : b)
       }
     }));
-    setActiveTab('dashboard');
   };
 
   const handleAddWord = (word: Word) => {
-    const earned = 2;
+    const earned = settings.wordPoints;
     const oldLevel = Math.floor(points / 50) + 1;
     const newLevel = Math.floor((points + earned) / 50) + 1;
     
@@ -85,7 +103,7 @@ export default function App() {
           ...current,
           standaloneWords: newStandaloneWords,
           books: newBooks,
-          points: Math.max(0, current.points - 2)
+          points: Math.max(0, current.points - settings.wordPoints)
         }
       };
     });
@@ -95,7 +113,7 @@ export default function App() {
     const bookToDelete = books.find(b => b.id === id);
     if (!bookToDelete) return;
     
-    let lost = 1;
+    let lost = bookToDelete.isApproved === false ? 0 : settings.bookPoints;
 
     setAllData(prev => ({
       ...prev,
@@ -181,7 +199,6 @@ export default function App() {
         currentReader={currentReader} 
         setCurrentReader={setCurrentReader} 
         allData={allData} 
-        setAllData={setAllData} 
         points={points} 
       />
 
@@ -194,10 +211,10 @@ export default function App() {
             <AddBookForm key={`add-${currentReader}`} onAdd={handleAddBook} onCancel={() => setActiveTab('dashboard')} existingWords={allWords.map(w => w.word)} />
           )}
           {activeTab === 'library' && (
-            <BookList key={`library-${currentReader}`} books={books} onDelete={handleDeleteBook} />
+            <BookList key={`library-${currentReader}`} books={books} onDelete={handleDeleteBook} onApprove={handleApproveBook} bookPoints={settings.bookPoints} />
           )}
           {activeTab === 'vocab' && (
-            <WordList key={`vocab-${currentReader}`} books={books} standaloneWords={standaloneWords} onAddWord={handleAddWord} onDeleteWord={handleDeleteWord} />
+            <WordList key={`vocab-${currentReader}`} books={books} standaloneWords={standaloneWords} onAddWord={handleAddWord} onDeleteWord={handleDeleteWord} wordPoints={settings.wordPoints} />
           )}
           {activeTab === 'wishlist' && (
             <WishList key={`wishlist-${currentReader}`} wishlist={wishlist} onAdd={handleAddWishlist} onToggle={handleToggleWishlist} onDelete={handleDeleteWishlist} />
@@ -208,7 +225,29 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onSettingsClick={() => setShowSettingsPinModal(true)} />
+
+      <ParentPinModal
+        isOpen={showSettingsPinModal}
+        onClose={() => setShowSettingsPinModal(false)}
+        onSuccess={() => {
+          setShowSettingsPinModal(false);
+          setShowSettingsModal(true);
+        }}
+        message="Please enter the password to open settings."
+        colorTheme="sky"
+      />
+
+      <ParentSettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        allData={allData}
+        setAllData={setAllData}
+        currentReader={currentReader}
+        setCurrentReader={setCurrentReader}
+        settings={settings}
+        setSettings={setSettings}
+      />
     </div>
   );
 }

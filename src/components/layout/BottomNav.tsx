@@ -1,10 +1,11 @@
 import React from 'react';
-import { Trophy, Library, Target, PlusCircle, Type, Bookmark } from 'lucide-react';
+import { Trophy, Library, Target, PlusCircle, Type, Bookmark, Settings } from 'lucide-react';
 import { TabType } from '../../types';
 
 interface BottomNavProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onSettingsClick: () => void;
 }
 
 function NavButton({ active, onClick, icon, label, color }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, color: string }) {
@@ -21,10 +22,10 @@ function NavButton({ active, onClick, icon, label, color }: { active: boolean, o
   );
 }
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
+export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, onSettingsClick }) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-sky-200 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
-      <div className="max-w-lg mx-auto flex justify-between sm:justify-around px-1 sm:px-2 py-2 items-end">
+      <div className="max-w-xl mx-auto flex justify-between sm:justify-around px-1 sm:px-2 py-2 items-end">
         <NavButton 
           active={activeTab === 'dashboard'} 
           onClick={() => setActiveTab('dashboard')} 
@@ -46,7 +47,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
           label="Goals" 
           color="text-amber-500"
         />
-        <div className="relative -top-5 sm:-top-6 shrink-0 mx-1 sm:mx-0">
+        <div className="relative -top-5 sm:-top-6 shrink-0 mx-0.5 sm:mx-0">
           <button 
             onClick={() => setActiveTab('add')}
             className="bg-sky-500 hover:bg-sky-400 text-white p-3 sm:p-4 rounded-full shadow-lg border-4 border-white transition-transform hover:scale-110 active:scale-95 flex items-center justify-center"
@@ -67,6 +68,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
           icon={<Bookmark />} 
           label="Wishlist" 
           color="text-indigo-500"
+        />
+        <NavButton 
+          active={false} 
+          onClick={onSettingsClick} 
+          icon={<Settings />} 
+          label="Settings" 
+          color="text-slate-500"
         />
       </div>
     </nav>

@@ -6,9 +6,10 @@ interface AddWordFormProps {
   onAdd: (word: Word) => void;
   onCancel: () => void;
   allWords: Word[];
+  wordPoints: number;
 }
 
-export const AddWordForm: React.FC<AddWordFormProps> = ({ onAdd, onCancel, allWords }) => {
+export const AddWordForm: React.FC<AddWordFormProps> = ({ onAdd, onCancel, allWords, wordPoints }) => {
   const [newWord, setNewWord] = useState('');
   const [newDef, setNewDef] = useState('');
   const [error, setError] = useState('');
@@ -40,7 +41,7 @@ export const AddWordForm: React.FC<AddWordFormProps> = ({ onAdd, onCancel, allWo
       onSubmit={handleSubmit} 
       className="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border-2 border-rose-200 overflow-hidden"
     >
-      <h3 className="font-black text-base sm:text-lg text-rose-700 mb-3">Add a New Word (+2 pts) 🌟</h3>
+      <h3 className="font-black text-base sm:text-lg text-rose-700 mb-3">Add a New Word (+{wordPoints} pt{wordPoints !== 1 ? 's' : ''}) 🌟</h3>
       {error && <p className="text-red-500 font-bold text-sm mb-3">{error}</p>}
       <div className="space-y-3 mb-4">
         <input 

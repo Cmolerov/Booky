@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { Plus, X } from 'lucide-react';
 import { Book } from '../../types';
 
 interface AddBookFormProps {
@@ -12,18 +13,44 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [summary, setSummary] = useState('');
+  const [characters, setCharacters] = useState(['']);
+  const [settings, setSettings] = useState(['']);
+  const [favoritePart, setFavoritePart] = useState('');
   const [word1, setWord1] = useState('');
   const [def1, setDef1] = useState('');
   const [word2, setWord2] = useState('');
   const [def2, setDef2] = useState('');
   const [error, setError] = useState('');
 
+  const handleCharacterChange = (index: number, value: string) => {
+    const newChars = [...characters];
+    newChars[index] = value;
+    setCharacters(newChars);
+  };
+  const addCharacter = () => setCharacters([...characters, '']);
+  const removeCharacter = (index: number) => {
+    if (characters.length > 1) setCharacters(characters.filter((_, i) => i !== index));
+  };
+
+  const handleSettingChange = (index: number, value: string) => {
+    const newSettings = [...settings];
+    newSettings[index] = value;
+    setSettings(newSettings);
+  };
+  const addSetting = () => setSettings([...settings, '']);
+  const removeSetting = (index: number) => {
+    if (settings.length > 1) setSettings(settings.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    const filledChars = characters.filter(c => c.trim() !== '');
+    const filledSettings = settings.filter(s => s.trim() !== '');
+
     // Validation
-    if (!title || !author || !summary || !word1 || !def1 || !word2 || !def2) {
+    if (!title || !author || !summary || !word1 || !def1 || !word2 || !def2 || filledChars.length === 0 || filledSettings.length === 0 || !favoritePart) {
       setError('Please fill out all the required fields! 🖍️');
       return;
     }
@@ -38,12 +65,8 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
     const w1Exists = existingWords.some(w => w.toLowerCase() === word1.toLowerCase().trim());
     const w2Exists = existingWords.some(w => w.toLowerCase() === word2.toLowerCase().trim());
 
-    if (w1Exists) {
-      setError(`Whoa there! You already learned "${word1}"! You're so smart! 🧠✨`);
-      return;
-    }
-    if (w2Exists) {
-      setError(`Whoa there! You already learned "${word2}"! You're so smart! 🧠✨`);
+    if (w1Exists || w2Exists) {
+      setError(`Whoa there! You already learned "${w1Exists ? word1 : word2}"! You're so smart! 🧠✨`);
       return;
     }
 
@@ -52,6 +75,9 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
       title,
       author,
       summary,
+      characters: filledChars,
+      settings: filledSettings,
+      favoritePart: favoritePart,
       words: [
         { word: word1, definition: def1 },
         { word: word2, definition: def2 }
@@ -102,6 +128,52 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
           </div>
         </div>
 
+        <div className="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100">
+          <div className="mb-4">
+            <label className="block font-bold text-purple-800 mb-2">Characters 🦸‍♂️</label>
+            {characters.map((char, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input 
+                  type="text" 
+                  value={char} onChange={e => handleCharacterChange(index, e.target.value)}
+                  className="flex-1 border-2 border-purple-200 rounded-xl p-2 font-medium focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                  placeholder="Character name"
+                />
+                {characters.length > 1 && (
+                  <button type="button" onClick={() => removeCharacter(index)} className="text-purple-400 hover:text-red-500 p-2">
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={addCharacter} className="text-sm font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 mt-1">
+              <Plus className="w-4 h-4" /> Add Character
+            </button>
+          </div>
+
+          <div>
+            <label className="block font-bold text-purple-800 mb-2">Settings (Where did it happen?) 🗺️</label>
+            {settings.map((setting, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input 
+                  type="text" 
+                  value={setting} onChange={e => handleSettingChange(index, e.target.value)}
+                  className="flex-1 border-2 border-purple-200 rounded-xl p-2 font-medium focus:border-purple-400 focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                  placeholder="e.g. A spooky castle"
+                />
+                {settings.length > 1 && (
+                  <button type="button" onClick={() => removeSetting(index)} className="text-purple-400 hover:text-red-500 p-2">
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={addSetting} className="text-sm font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 mt-1">
+              <Plus className="w-4 h-4" /> Add Setting
+            </button>
+          </div>
+        </div>
+
         <div className="bg-sky-50 p-4 rounded-2xl border-2 border-sky-100">
           <label className="block font-bold text-sky-800 mb-2">What was the book about? 🤔</label>
           <p className="text-xs text-sky-600 font-bold mb-2 uppercase tracking-wider">Write at least 2 sentences!</p>
@@ -109,6 +181,15 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({ onAdd, onCancel, exist
             value={summary} onChange={e => setSummary(e.target.value)}
             className="w-full border-2 border-sky-200 rounded-xl p-3 font-medium focus:border-sky-400 focus:ring-4 focus:ring-sky-100 outline-none transition-all min-h-[100px]"
             placeholder="This book is about..."
+          />
+        </div>
+
+        <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-100">
+          <label className="block font-bold text-amber-800 mb-2">Favorite Part of the Story ⭐</label>
+          <textarea 
+            value={favoritePart} onChange={e => setFavoritePart(e.target.value)}
+            className="w-full border-2 border-amber-200 rounded-xl p-3 font-medium focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition-all min-h-[80px]"
+            placeholder="My favorite part was when..."
           />
         </div>
 

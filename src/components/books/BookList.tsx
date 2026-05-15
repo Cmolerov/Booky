@@ -8,15 +8,25 @@ import { ParentPinModal } from '../shared/ParentPinModal';
 interface BookListProps {
   books: Book[];
   onDelete: (id: string) => void;
+  onApprove: (id: string) => void;
+  bookPoints: number;
 }
 
-export const BookList: React.FC<BookListProps> = ({ books, onDelete }) => {
+export const BookList: React.FC<BookListProps> = ({ books, onDelete, onApprove, bookPoints }) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const handleDeleteSuccess = () => {
     if (deletingId) {
       onDelete(deletingId);
       setDeletingId(null);
+    }
+  };
+
+  const handleApproveSuccess = () => {
+    if (approvingId) {
+      onApprove(approvingId);
+      setApprovingId(null);
     }
   };
 
@@ -41,7 +51,9 @@ export const BookList: React.FC<BookListProps> = ({ books, onDelete }) => {
             <BookCard 
               key={book.id} 
               book={book} 
-              onDeleteClick={setDeletingId} 
+              onDeleteClick={setDeletingId}
+              onApproveClick={setApprovingId}
+              bookPoints={bookPoints}
             />
           ))}
         </div>
@@ -53,6 +65,13 @@ export const BookList: React.FC<BookListProps> = ({ books, onDelete }) => {
         onSuccess={handleDeleteSuccess}
         message="Please enter the password to delete this book."
         colorTheme="red"
+      />
+      <ParentPinModal
+        isOpen={!!approvingId}
+        onClose={() => setApprovingId(null)}
+        onSuccess={handleApproveSuccess}
+        message="Please enter the password to approve this book and add points."
+        colorTheme="emerald"
       />
     </motion.div>
   );

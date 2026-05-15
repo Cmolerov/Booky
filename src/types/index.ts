@@ -24,6 +24,10 @@ export interface Book {
   summary: string;
   words: Word[];
   dateLogged: string;
+  characters?: string[];
+  settings?: string[];
+  favoritePart?: string;
+  isApproved?: boolean;
 }
 
 export interface ReaderData {
@@ -37,3 +41,8 @@ export interface ReaderData {
 export type AllReaderData = Record<string, ReaderData>;
 
 export type TabType = 'dashboard' | 'add' | 'library' | 'vocab' | 'wishlist' | 'goals';
+
+export interface AppSettings {
+  bookPoints: number;
+  wordPoints: number;
+}

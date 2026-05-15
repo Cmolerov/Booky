@@ -11,9 +11,10 @@ interface WordListProps {
   standaloneWords: Word[];
   onAddWord: (word: Word) => void;
   onDeleteWord: (word: string) => void;
+  wordPoints: number;
 }
 
-export const WordList: React.FC<WordListProps> = ({ books, standaloneWords, onAddWord, onDeleteWord }) => {
+export const WordList: React.FC<WordListProps> = ({ books, standaloneWords, onAddWord, onDeleteWord, wordPoints }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [deletingWord, setDeletingWord] = useState<string | null>(null);
 
@@ -58,6 +59,7 @@ export const WordList: React.FC<WordListProps> = ({ books, standaloneWords, onAd
             onAdd={handleAddWord} 
             onCancel={() => setIsAdding(false)} 
             allWords={allWords} 
+            wordPoints={wordPoints}
           />
         )}
       </AnimatePresence>
