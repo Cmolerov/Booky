@@ -23,6 +23,7 @@ export const ParentSettingsModal: React.FC<ParentSettingsModalProps> = ({
 
   const [bookPointsStr, setBookPointsStr] = useState(settings.bookPoints.toString());
   const [wordPointsStr, setWordPointsStr] = useState(settings.wordPoints.toString());
+  const [minutesPerPointStr, setMinutesPerPointStr] = useState(settings.minutesPerPoint?.toString() || '10');
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +57,13 @@ export const ParentSettingsModal: React.FC<ParentSettingsModalProps> = ({
   const handleSavePoints = () => {
     const bp = parseInt(bookPointsStr);
     const wp = parseInt(wordPointsStr);
-    if (!isNaN(bp) && bp >= 0 && !isNaN(wp) && wp >= 0) {
+    const mpp = parseInt(minutesPerPointStr);
+    if (!isNaN(bp) && bp >= 0 && !isNaN(wp) && wp >= 0 && !isNaN(mpp) && mpp > 0) {
       setSettings(prev => ({
         ...prev,
         bookPoints: bp,
         wordPoints: wp,
+        minutesPerPoint: mpp,
       }));
     }
   };
@@ -162,6 +165,17 @@ export const ParentSettingsModal: React.FC<ParentSettingsModalProps> = ({
                       min="0"
                       value={wordPointsStr}
                       onChange={(e) => setWordPointsStr(e.target.value)}
+                      onBlur={handleSavePoints}
+                      className="w-full border-2 border-amber-200 rounded-xl p-3 font-medium focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-amber-900 font-bold mb-1">Mins Reading per Point</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      value={minutesPerPointStr}
+                      onChange={(e) => setMinutesPerPointStr(e.target.value)}
                       onBlur={handleSavePoints}
                       className="w-full border-2 border-amber-200 rounded-xl p-3 font-medium focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none"
                     />

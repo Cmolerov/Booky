@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
+import { Clock, BookOpen } from 'lucide-react';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { TabType, Book, Word, WishlistItem, Goal } from './types';
+import { TabType, Book, Word, WishlistItem, Goal, ReadingSession } from './types';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { AddBookForm } from './components/books/AddBookForm';
+import { LogTimeForm } from './components/time/LogTimeForm';
 import { BookList } from './components/books/BookList';
 import { WordList } from './components/words/WordList';
 import { WishList } from './components/wishlist/WishList';
@@ -22,12 +24,14 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [showSettingsPinModal, setShowSettingsPinModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [addMode, setAddMode] = useState<'time' | 'book'>('time');
 
-  const currentData = allData[currentReader] || { books: [], standaloneWords: [], wishlist: [], goals: [], points: 0 };
+  const currentData = allData[currentReader] || { books: [], standaloneWords: [], wishlist: [], goals: [], sessions: [], points: 0 };
   const books = currentData.books;
   const standaloneWords = currentData.standaloneWords || [];
   const wishlist = currentData.wishlist || [];
   const goals = currentData.goals || [];
+  const sessions = currentData.sessions || [];
   const points = currentData.points;
   
   const allWords = [...standaloneWords, ...books.flatMap(b => b.words)];
@@ -125,6 +129,57 @@ export default function App() {
     }));
   };
 
+  const handleAddSession = (session: ReadingSession) => {
+    setAllData(prev => ({
+      ...prev,
+      [currentReader]: {
+        ...prev[currentReader],
+        sessions: [session, ...(prev[currentReader].sessions || [])]
+      }
+    }));
+    setActiveTab('dashboard');
+  };
+
+  const handleApproveSession = (id: string) => {
+    const sessionToApprove = sessions.find(s => s.id === id);
+    if (!sessionToApprove || sessionToApprove.isApproved !== false) return;
+
+    let earned = Math.floor(sessionToApprove.minutes / settings.minutesPerPoint);
+    const oldLevel = Math.floor(points / 50) + 1;
+    const newLevel = Math.floor((points + earned) / 50) + 1;
+    
+    if (newLevel > oldLevel) {
+      triggerLevelUpConfetti();
+    } else if (earned > 0) {
+      triggerPointsConfetti();
+    }
+
+    setAllData(prev => ({
+      ...prev,
+      [currentReader]: {
+        ...prev[currentReader],
+        points: prev[currentReader].points + earned,
+        sessions: (prev[currentReader].sessions || []).map(s => s.id === id ? { ...s, isApproved: true } : s)
+      }
+    }));
+  };
+
+  const handleDeleteSession = (id: string) => {
+    const sessionToDelete = sessions.find(s => s.id === id);
+    if (!sessionToDelete) return;
+    
+    let lost = sessionToDelete.isApproved === false ? 0 : Math.floor(sessionToDelete.minutes / settings.minutesPerPoint);
+
+    setAllData(prev => ({
+      ...prev,
+      [currentReader]: {
+        ...prev[currentReader],
+        sessions: (prev[currentReader].sessions || []).filter(s => s.id !== id),
+        points: Math.max(0, prev[currentReader].points - lost)
+      }
+    }));
+  };
+
   const handleAddWishlist = (item: Omit<WishlistItem, 'id'>) => {
     setAllData(prev => ({
       ...prev,
@@ -208,10 +263,31 @@ export default function App() {
             <Dashboard key={`dashboard-${currentReader}`} books={books} standaloneWords={standaloneWords} points={points} onNavigate={setActiveTab} />
           )}
           {activeTab === 'add' && (
-            <AddBookForm key={`add-${currentReader}`} onAdd={handleAddBook} onCancel={() => setActiveTab('dashboard')} existingWords={allWords.map(w => w.word)} />
+            <div key={`add-${currentReader}`} className="space-y-6 pb-20">
+              <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
+                <button 
+                  onClick={() => setAddMode('time')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-sm sm:text-base transition-colors ${addMode === 'time' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <Clock className="w-5 h-5" /> Log Time
+                </button>
+                <button 
+                  onClick={() => setAddMode('book')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-bold text-sm sm:text-base transition-colors ${addMode === 'book' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  <BookOpen className="w-5 h-5" /> Add Book
+                </button>
+              </div>
+
+              {addMode === 'time' ? (
+                <LogTimeForm onAdd={handleAddSession} minutesPerPoint={settings.minutesPerPoint} />
+              ) : (
+                <AddBookForm onAdd={handleAddBook} onCancel={() => setActiveTab('dashboard')} existingWords={allWords.map(w => w.word)} />
+              )}
+            </div>
           )}
           {activeTab === 'library' && (
-            <BookList key={`library-${currentReader}`} books={books} onDelete={handleDeleteBook} onApprove={handleApproveBook} bookPoints={settings.bookPoints} />
+            <BookList key={`library-${currentReader}`} books={books} sessions={sessions} onDelete={handleDeleteBook} onApprove={handleApproveBook} onDeleteSession={handleDeleteSession} onApproveSession={handleApproveSession} bookPoints={settings.bookPoints} minutesPerPoint={settings.minutesPerPoint} />
           )}
           {activeTab === 'vocab' && (
             <WordList key={`vocab-${currentReader}`} books={books} standaloneWords={standaloneWords} onAddWord={handleAddWord} onDeleteWord={handleDeleteWord} wordPoints={settings.wordPoints} />

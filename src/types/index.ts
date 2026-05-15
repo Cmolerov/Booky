@@ -30,11 +30,20 @@ export interface Book {
   isApproved?: boolean;
 }
 
+export interface ReadingSession {
+  id: string;
+  minutes: number;
+  dateLogged: string;
+  title?: string;
+  isApproved?: boolean;
+}
+
 export interface ReaderData {
   books: Book[];
   standaloneWords: Word[];
   wishlist: WishlistItem[];
   goals?: Goal[];
+  sessions?: ReadingSession[];
   points: number;
 }
 
@@ -45,4 +54,5 @@ export type TabType = 'dashboard' | 'add' | 'library' | 'vocab' | 'wishlist' | '
 export interface AppSettings {
   bookPoints: number;
   wordPoints: number;
+  minutesPerPoint: number;
 }

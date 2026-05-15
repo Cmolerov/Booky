@@ -5,6 +5,7 @@ import { storage } from '../utils/storage';
 const defaultSettings: AppSettings = {
   bookPoints: 1,
   wordPoints: 2,
+  minutesPerPoint: 10,
 };
 
 export const useSettings = () => {
